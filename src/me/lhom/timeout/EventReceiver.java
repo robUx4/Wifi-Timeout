@@ -17,7 +17,7 @@ public class EventReceiver extends BroadcastReceiver {
 	private static final String ACTION_TIMEOUT = "me.lhom.timeout.action.TIMEOUT";
 	private static boolean isPowerPlugged = false;
 	private static boolean userDisabledWifi;
-	private static boolean wifiChanging = false;
+	private static boolean weDisabledWifi = false;
 
 	public EventReceiver(Context context) {
 		WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -26,7 +26,7 @@ public class EventReceiver extends BroadcastReceiver {
 
 	public EventReceiver() {
 	}
-	
+
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		Log.v("Timeout", "EventReceiver received "+intent);
@@ -38,7 +38,6 @@ public class EventReceiver extends BroadcastReceiver {
 			}
 			else if (Intent.ACTION_SCREEN_ON.equals(action)) {
 				// cancel the timer to disable Wifi
-				// TODO: enable back wifi only it is was enabled before we disabled it
 				setPendingAlarm(context);
 			}
 			else if (Intent.ACTION_BATTERY_CHANGED.equals(action)) {
@@ -50,11 +49,13 @@ public class EventReceiver extends BroadcastReceiver {
 			}
 			else if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action)) {
 				WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-				Log.i("Timeout", "wifi changed "+intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN)+" / "+wifiManager.isWifiEnabled()+" by us:"+wifiChanging);
-				if (wifiChanging)
-					wifiChanging = false;
-				else {
-					userDisabledWifi = !wifiManager.isWifiEnabled();
+				Log.i("Timeout", "wifi changed "+intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN)+" / "+wifiManager.isWifiEnabled()+" by us:"+weDisabledWifi);
+				if (wifiManager.isWifiEnabled()) {
+					userDisabledWifi = false;
+					weDisabledWifi = false;
+				} else {
+					if (!weDisabledWifi)
+						userDisabledWifi = true;
 					//TODO: if disabled, cancel the possible alarm
 				}
 			}
@@ -89,8 +90,9 @@ public class EventReceiver extends BroadcastReceiver {
 	private static void setWifiState(Context context, boolean enabled) {
 		WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 		if (wifiManager.isWifiEnabled() != enabled) {
-			wifiChanging = true;
-			Log.d("Timeout", "We should enable WIFI "+enabled);
+			if (!enabled)
+				weDisabledWifi = true;
+			Log.d("Timeout", "enable WIFI "+enabled);
 			wifiManager.setWifiEnabled(enabled);
 		}
 	}
