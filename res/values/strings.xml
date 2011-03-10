@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, Configure!</string>
-    <string name="app_name">WifiTimeout</string>
+	<string name="app_name">WifiTimeout</string>
+	<string name="about">This App lets you disable the Wifi when you go in
+		sleep mode faster than the system would\n(and even when the system doesn\'t
+		do it properly)</string>
+	<string name="pref_enabled">Enabled</string>
+	<string name="pref_timeout">Timeout (in seconds)</string>
 </resources>

@@ -81,13 +81,16 @@ public class EventReceiver extends BroadcastReceiver {
 				setWifiState(context, true);
 		} else {
 			Time time = new Time();
-			time.set(System.currentTimeMillis() + 10 * DateUtils.SECOND_IN_MILLIS); //TODO: make the 10s a parameter
+			time.set(System.currentTimeMillis() + Timeout.mApp.getDelayInSeconds() * DateUtils.SECOND_IN_MILLIS);
 			long nextStart = time.toMillis(false);
 			alarmManager.set(0, nextStart, pendingIntent);
 		}
 	}
 
 	private static void setWifiState(Context context, boolean enabled) {
+		if (!Timeout.mApp.isEnabled())
+			return;
+		
 		WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 		if (wifiManager.isWifiEnabled() != enabled) {
 			if (!enabled)
