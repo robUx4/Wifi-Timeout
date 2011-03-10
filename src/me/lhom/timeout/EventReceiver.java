@@ -16,7 +16,17 @@ public class EventReceiver extends BroadcastReceiver {
 
 	private static final String ACTION_TIMEOUT = "me.lhom.timeout.action.TIMEOUT";
 	private static boolean isPowerPlugged = false;
+	private static boolean userDisabledWifi;
+	private static boolean wifiChanging = false;
 
+	public EventReceiver(Context context) {
+		WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+		userDisabledWifi = !wifiManager.isWifiEnabled();
+	}
+
+	public EventReceiver() {
+	}
+	
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		Log.v("Timeout", "EventReceiver received "+intent);
@@ -39,8 +49,14 @@ public class EventReceiver extends BroadcastReceiver {
 				setWifiState(context, false);
 			}
 			else if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action)) {
-				Log.i("Timeout", "wifi changed "+intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN));
-				//TODO: if disabled, cancel the possible alarm
+				WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+				Log.i("Timeout", "wifi changed "+intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN)+" / "+wifiManager.isWifiEnabled()+" by us:"+wifiChanging);
+				if (wifiChanging)
+					wifiChanging = false;
+				else {
+					userDisabledWifi = !wifiManager.isWifiEnabled();
+					//TODO: if disabled, cancel the possible alarm
+				}
 			}
 		}
 	}
@@ -50,7 +66,7 @@ public class EventReceiver extends BroadcastReceiver {
 		PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 		boolean screenIsOn = pm.isScreenOn();
 
-		Log.d("Timeout", "screenIsOn:"+screenIsOn+" isPlugged:"+isPowerPlugged);
+		Log.d("Timeout", "screenIsOn:"+screenIsOn+" isPlugged:"+isPowerPlugged+" userDisabled:"+userDisabledWifi);
 
 		Intent intentService = new Intent(context, EventReceiver.class);
 		intentService.setAction(ACTION_TIMEOUT);
@@ -60,7 +76,8 @@ public class EventReceiver extends BroadcastReceiver {
 		// only disable if power not plugged and screen is off
 		if (screenIsOn || isPowerPlugged) {
 			alarmManager.cancel(pendingIntent);
-			setWifiState(context, true);
+			if (!userDisabledWifi)
+				setWifiState(context, true);
 		} else {
 			Time time = new Time();
 			time.set(System.currentTimeMillis() + 10 * DateUtils.SECOND_IN_MILLIS); //TODO: make the 10s a parameter
@@ -72,6 +89,7 @@ public class EventReceiver extends BroadcastReceiver {
 	private static void setWifiState(Context context, boolean enabled) {
 		WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 		if (wifiManager.isWifiEnabled() != enabled) {
+			wifiChanging = true;
 			Log.d("Timeout", "We should enable WIFI "+enabled);
 			wifiManager.setWifiEnabled(enabled);
 		}
