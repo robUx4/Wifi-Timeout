@@ -54,9 +54,17 @@ public class EventReceiver extends BroadcastReceiver {
 					userDisabledWifi = false;
 					weDisabledWifi = false;
 				} else {
-					if (!weDisabledWifi)
-						userDisabledWifi = true;
-					//TODO: if disabled, cancel the possible alarm
+					if (!weDisabledWifi) {
+						//TODO: if disabled, cancel the possible alarm
+						PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+						if (pm.isScreenOn()) {
+							userDisabledWifi = true;
+							weDisabledWifi = false;
+						} else {
+							weDisabledWifi = true; // assume we did it so we can bring it back when needed
+							userDisabledWifi = false;
+						}
+					}
 				}
 			}
 		}
@@ -90,7 +98,7 @@ public class EventReceiver extends BroadcastReceiver {
 	private static void setWifiState(Context context, boolean enabled) {
 		if (!Timeout.mApp.isEnabled())
 			return;
-		
+
 		WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 		if (wifiManager.isWifiEnabled() != enabled) {
 			if (!enabled)
