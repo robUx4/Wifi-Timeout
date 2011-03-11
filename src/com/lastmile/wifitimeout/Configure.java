@@ -1,4 +1,4 @@
-package me.lhom.timeout;
+package com.lastmile.wifitimeout;
 
 import android.app.Activity;
 import android.os.Bundle;

@@ -1,4 +1,4 @@
-package me.lhom.timeout;
+package com.lastmile.wifitimeout;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="me.lhom.timeout" android:versionCode="1" android:versionName="1.0">
+	package="com.lastmile.wifitimeout" android:versionCode="1" android:versionName="1.0">
 	<uses-sdk android:targetSdkVersion="7" android:minSdkVersion="7" />
 
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
 	<application android:icon="@drawable/icon" android:label="@string/app_name"
-		android:name="me.lhom.timeout.Timeout">
-		<activity android:name="me.lhom.timeout.Configure"
+		android:name="Timeout">
+		<activity android:name="Configure"
 			android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -16,7 +16,7 @@
 			</intent-filter>
 		</activity>
 
-		<receiver android:name="me.lhom.timeout.EventReceiver">
+		<receiver android:name="EventReceiver">
 			<intent-filter>
 				<action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
 				<action android:name="android.intent.action.SCREEN_ON" />
