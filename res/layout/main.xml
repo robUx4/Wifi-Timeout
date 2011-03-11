@@ -6,8 +6,12 @@
 		android:layout_height="wrap_content" android:text="@string/about"
 		android:layout_marginTop="8dp" android:layout_marginLeft="8dp"
 		android:layout_marginRight="8dp" />
-	<RelativeLayout android:id="@+id/relativeLayout1" android:layout_height="wrap_content" android:layout_width="fill_parent">
-		<CheckBox android:layout_height="wrap_content" android:checked="true" android:layout_marginLeft="12dp" android:id="@+id/checkBoxEnabled" android:layout_width="wrap_content" android:text="@string/pref_enabled" android:layout_centerInParent="true"></CheckBox>
+	<RelativeLayout android:id="@+id/relativeLayout1"
+		android:layout_height="wrap_content" android:layout_width="fill_parent">
+		<CheckBox android:layout_height="wrap_content"
+			android:checked="true" android:layout_marginLeft="12dp"
+			android:id="@+id/checkBoxEnabled" android:layout_width="wrap_content"
+			android:text="@string/pref_enabled" android:layout_centerInParent="true"></CheckBox>
 	</RelativeLayout>
 	<View android:id="@+id/view1" android:layout_width="wrap_content"
 		android:layout_height="20dp"></View>
@@ -24,6 +28,6 @@
 	</LinearLayout>
 	<SeekBar android:layout_height="wrap_content"
 		android:layout_width="match_parent" android:layout_marginLeft="16dp"
-		android:layout_marginRight="16dp" android:progress="20" android:max="500"
+		android:layout_marginRight="16dp" android:progress="20" android:max="300"
 		android:id="@+id/seekBarTimeout"></SeekBar>
 </LinearLayout>
