@@ -14,7 +14,8 @@ import android.util.Log;
 
 public class EventReceiver extends BroadcastReceiver {
 
-	private static final String ACTION_TIMEOUT = "me.lhom.timeout.action.TIMEOUT";
+	private static final String ACTION_TIMEOUT = "com.lastmile.wifitimeout.action.TIMEOUT";
+	private static final String ACTION_KEEPALIVE = "com.lastmile.wifitimeout.action.KEEPALIVE";
 	private static boolean isPowerPlugged = false;
 	private static boolean userDisabledWifi;
 	private static boolean weDisabledWifi = false;
@@ -25,6 +26,7 @@ public class EventReceiver extends BroadcastReceiver {
 	}
 
 	public EventReceiver() {
+		// constructor for the system to send us events defined in the manifest
 	}
 
 	@Override
@@ -46,6 +48,9 @@ public class EventReceiver extends BroadcastReceiver {
 			}
 			else if (ACTION_TIMEOUT.equals(action)) {
 				setWifiState(context, false);
+			}
+			else if (ACTION_KEEPALIVE.equals(action)) {
+				setPendingAlarm(context);
 			}
 			else if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action)) {
 				WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -105,6 +110,23 @@ public class EventReceiver extends BroadcastReceiver {
 				weDisabledWifi = true;
 			Log.d("Timeout", "enable WIFI "+enabled);
 			wifiManager.setWifiEnabled(enabled);
+		}
+	}
+
+	void setEnabled(Context context, boolean enabled) {
+		Log.d("Timeout", "enable KeepAlive "+enabled);
+		Intent intentService = new Intent(context, EventReceiver.class);
+		intentService.setAction(ACTION_KEEPALIVE);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intentService, 0);
+		AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+		
+		if (!enabled)
+			alarmManager.cancel(pendingIntent);
+		else {
+			Time time = new Time();
+			time.set(System.currentTimeMillis() + 20 * DateUtils.SECOND_IN_MILLIS);
+			long nextStart = time.toMillis(false);
+			alarmManager.setInexactRepeating(0, nextStart, 5 * DateUtils.MINUTE_IN_MILLIS, pendingIntent);
 		}
 	}
 }

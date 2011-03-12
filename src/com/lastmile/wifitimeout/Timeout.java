@@ -3,15 +3,18 @@ package com.lastmile.wifitimeout;
 import android.app.Application;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
 public class Timeout extends Application {
 
 	private static final boolean LOG = false;
-	private static SharedPreferences prefs;
 	protected static Timeout mApp;
+	private EventReceiver mReceiver;
+	
+	private static final String PREF_NAME = "timeout";
+	private static final String PREF_ENABLED = "isEnabled";
+	private static final String PREF_DELAY = "delay";
 	
 	@Override
 	public void onCreate() {
@@ -19,38 +22,40 @@ public class Timeout extends Application {
 		
 		mApp = this;
 		
-		prefs = getSharedPreferences("timeout", 0);
-
         IntentFilter screenOn = new IntentFilter(Intent.ACTION_SCREEN_ON);
         IntentFilter screenOff = new IntentFilter(Intent.ACTION_SCREEN_OFF);
         IntentFilter batteryChange = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         
-        EventReceiver mReceiver = new EventReceiver(this);
+        mReceiver = new EventReceiver(this);
         if (LOG) Log.d("Timeout", "register screenOn");
         registerReceiver(mReceiver, screenOn);
         if (LOG) Log.d("Timeout", "register screenOff");
         registerReceiver(mReceiver, screenOff);
         if (LOG) Log.d("Timeout", "register batteryChange");
         registerReceiver(mReceiver, batteryChange);
+
+        mReceiver.setEnabled(this, isEnabled());
 	}
 
 	boolean isEnabled() {
-		return prefs.getBoolean("isEnabled", true);
+		return getSharedPreferences(PREF_NAME, 0).getBoolean(PREF_ENABLED, true);
 	}
 	
 	void setEnabled(boolean set) {
-		Editor e = prefs.edit();
-		e.putBoolean("isEnabled", set);
+		Editor e = getSharedPreferences(PREF_NAME, 0).edit();
+		e.putBoolean(PREF_ENABLED, set);
 		e.commit();
+
+		mReceiver.setEnabled(this, set);
 	}
 	
 	int getDelayInSeconds() {
-		return prefs.getInt("delay", 20);
+		return getSharedPreferences(PREF_NAME, 0).getInt(PREF_DELAY, 20);
 	}
 	
 	void setDelayInSeconds(int delay) {
-		Editor e = prefs.edit();
-		e.putInt("delay", delay);
+		Editor e = getSharedPreferences(PREF_NAME, 0).edit();
+		e.putInt(PREF_DELAY, delay);
 		e.commit();
 	}
 }
